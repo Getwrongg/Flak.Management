@@ -1,0 +1,1 @@
+namespace Flak.Shared.Options; public sealed class DatabaseOptions { public string ConnectionString {get;set;}=""; public bool RunMigrationsOnStartup {get;set;} }

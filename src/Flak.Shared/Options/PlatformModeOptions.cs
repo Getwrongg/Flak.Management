@@ -1,0 +1,1 @@
+namespace Flak.Shared.Options; public sealed class PlatformModeOptions { public string Name { get; set; } = "Production"; }

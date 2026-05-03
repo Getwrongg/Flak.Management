@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [flak-main-internal]
+
+  flak-identity-api:
+    build:
+      context: ../..
+      dockerfile: src/Flak.Identity.Api/Dockerfile
+    image: ${FLAK_IDENTITY_IMAGE:-flak/identity-api}:${FLAK_IMAGE_TAG:-local}
+    environment: &api_env
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: http://+:8080
+      PlatformMode__Name: ${PLATFORM_MODE:-Production}
+    depends_on: [postgres]
+    ports: ["127.0.0.1:${IDENTITY_API_HOST_PORT:-5102}:8080"]
+    networks: [flak-main-internal,flak-main-edge]
+
+  flak-management-api:
+    build:
+      context: ../..
+      dockerfile: src/Flak.Management.Api/Dockerfile
+    image: ${FLAK_MANAGEMENT_API_IMAGE:-flak/management-api}:${FLAK_IMAGE_TAG:-local}
+    environment: *api_env
+    depends_on: [postgres]
+    ports: ["127.0.0.1:${MANAGEMENT_API_HOST_PORT:-5101}:8080"]
+    networks: [flak-main-internal,flak-main-edge]
+
+  flak-management-web:
+    build:
+      context: ../..
+      dockerfile: src/Flak.Management.Web/Dockerfile
+    image: ${FLAK_MANAGEMENT_WEB_IMAGE:-flak/management-web}:${FLAK_IMAGE_TAG:-local}
+    environment: *api_env
+    depends_on: [flak-management-api,flak-identity-api]
+    ports: ["127.0.0.1:${MANAGEMENT_WEB_HOST_PORT:-5100}:8080"]
+    networks: [flak-main-edge]
+
+volumes:
+  postgres_data:
+
+networks:
+  flak-main-internal:
+    name: flak-main-internal
+  flak-main-edge:
+    name: flak-main-edge

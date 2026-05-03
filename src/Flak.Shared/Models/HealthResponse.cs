@@ -1,0 +1,1 @@
+namespace Flak.Shared.Models; public sealed class HealthResponse { public string ServiceName {get;set;}=""; public string Status {get;set;}="Healthy"; public string Environment {get;set;}=""; public string PlatformMode {get;set;}=""; public DateTime TimestampUtc {get;set;}=DateTime.UtcNow; public List<HealthCheckItem> Checks {get;set;}=[]; }

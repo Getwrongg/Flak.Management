@@ -1,0 +1,6 @@
+services:
+  flak-management-web:
+    profiles: ["test"]
+    environment:
+      PlatformMode__Name: Testing
+      Testing__AllowUnsafeTestEndpoints: "true"

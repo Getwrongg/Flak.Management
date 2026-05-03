@@ -1,0 +1,1 @@
+namespace Flak.Infrastructure.Models; public sealed class AuditLog { public Guid Id {get;set;} public string Action {get;set;}=""; public string EntityType {get;set;}=""; public DateTime CreatedUtc {get;set;} }

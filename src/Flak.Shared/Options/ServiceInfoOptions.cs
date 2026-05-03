@@ -1,0 +1,1 @@
+namespace Flak.Shared.Options; public sealed class ServiceInfoOptions { public string Name {get;set;}=""; public string Version {get;set;}=""; public string Role {get;set;}=""; }

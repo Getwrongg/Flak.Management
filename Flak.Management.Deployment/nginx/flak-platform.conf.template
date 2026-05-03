@@ -1,0 +1,17 @@
+# Include in your existing nginx config
+upstream flak_management_web { server 127.0.0.1:5100; }
+upstream flak_management_api { server 127.0.0.1:5101; }
+upstream flak_identity_api { server 127.0.0.1:5102; }
+
+server {
+  server_name portal.example.local;
+  location / { proxy_pass http://flak_management_web; }
+}
+server {
+  server_name api.example.local;
+  location / { proxy_pass http://flak_management_api; }
+}
+server {
+  server_name identity.example.local;
+  location / { proxy_pass http://flak_identity_api; }
+}

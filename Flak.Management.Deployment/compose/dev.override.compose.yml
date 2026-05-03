@@ -1,0 +1,9 @@
+services:
+  flak-management-web:
+    profiles: ["dev"]
+    environment:
+      PlatformMode__Name: Development
+      Testing__UseMockAuth: "true"
+      Testing__UseMockCache: "true"
+      Testing__UseMockWorkers: "true"
+      Testing__SeedDemoData: "true"
