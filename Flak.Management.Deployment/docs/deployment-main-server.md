@@ -1,3 +1,3 @@
-# deployment-main-server.md
+# deployment-main-server
 
-Placeholder documentation for deployment-main-server.md.
+Before app update, run SQL migrations explicitly via migration scripts. No EF commands are used.
