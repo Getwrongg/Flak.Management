@@ -1,17 +1,1 @@
-using Dapper;
-using Flak.Infrastructure.Database;
-
-namespace Flak.Infrastructure.Repositories;
-
-public sealed class AuditLogRepository
-{
-    private readonly DbConnectionFactory _connectionFactory;
-    public AuditLogRepository(DbConnectionFactory connectionFactory) => _connectionFactory = connectionFactory;
-
-    public async Task<int> CountAsync(CancellationToken cancellationToken)
-    {
-        const string sql = "select count(*) from audit_logs;";
-        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
-        return await connection.QuerySingleAsync<int>(new CommandDefinition(sql, cancellationToken: cancellationToken));
-    }
-}
+using Dapper;using Flak.Infrastructure.Database;using Flak.Infrastructure.Models;namespace Flak.Infrastructure.Repositories; public sealed class AuditLogRepository { private readonly DbConnectionFactory _f; public AuditLogRepository(DbConnectionFactory f)=>_f=f; public async Task<IEnumerable<AuditLog>> GetRecentAsync(int limit,CancellationToken ct){const string sql="select id, action, entity_type as EntityType, created_utc as CreatedUtc from audit_logs order by created_utc desc limit @Limit;"; await using var c=await _f.OpenConnectionAsync(ct); return await c.QueryAsync<AuditLog>(new CommandDefinition(sql,new{Limit=limit},cancellationToken:ct));} public async Task AddAsync(string action,string entityType,string? entityId,CancellationToken ct){const string sql="insert into audit_logs (id,action,entity_type,entity_id,payload,created_utc) values (gen_random_uuid(),@Action,@EntityType,@EntityId,'{}'::jsonb,now());"; await using var c=await _f.OpenConnectionAsync(ct); await c.ExecuteAsync(new CommandDefinition(sql,new{Action=action,EntityType=entityType,EntityId=entityId},cancellationToken:ct));} }

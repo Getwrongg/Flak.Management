@@ -1,0 +1,1 @@
+namespace Flak.Shared.Models; public sealed class HealthCheckItem { public string Name {get;set;}=""; public string Status {get;set;}="Healthy"; public string Description {get;set;}=""; public long DurationMs {get;set;} }

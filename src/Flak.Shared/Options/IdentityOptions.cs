@@ -1,0 +1,1 @@
+namespace Flak.Shared.Options; public sealed class IdentityOptions { public bool EnableBootstrap {get;set;}=false; public int MinimumPasswordLength {get;set;}=14; }

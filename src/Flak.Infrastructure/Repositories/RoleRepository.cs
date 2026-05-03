@@ -1,17 +1,1 @@
-using Dapper;
-using Flak.Infrastructure.Database;
-
-namespace Flak.Infrastructure.Repositories;
-
-public sealed class RoleRepository
-{
-    private readonly DbConnectionFactory _connectionFactory;
-    public RoleRepository(DbConnectionFactory connectionFactory) => _connectionFactory = connectionFactory;
-
-    public async Task<int> CountAsync(CancellationToken cancellationToken)
-    {
-        const string sql = "select count(*) from roles;";
-        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
-        return await connection.QuerySingleAsync<int>(new CommandDefinition(sql, cancellationToken: cancellationToken));
-    }
-}
+using Dapper;using Flak.Infrastructure.Database;using Flak.Infrastructure.Models;namespace Flak.Infrastructure.Repositories; public sealed class RoleRepository { private readonly DbConnectionFactory _f; public RoleRepository(DbConnectionFactory f)=>_f=f; public async Task<IEnumerable<Role>> GetAllAsync(CancellationToken ct){const string sql="select id, name from roles order by name;"; await using var c=await _f.OpenConnectionAsync(ct); return await c.QueryAsync<Role>(new CommandDefinition(sql,cancellationToken:ct));} public async Task<Role?> GetByNameAsync(string name,CancellationToken ct){const string sql="select id, name from roles where name=@Name limit 1;"; await using var c=await _f.OpenConnectionAsync(ct); return await c.QuerySingleOrDefaultAsync<Role>(new CommandDefinition(sql,new{Name=name},cancellationToken:ct));} public async Task AssignRoleToUserAsync(Guid userId, Guid roleId, CancellationToken ct){const string sql="insert into user_roles (id,user_id,role_id,created_utc) values (gen_random_uuid(),@UserId,@RoleId,now()) on conflict do nothing;"; await using var c=await _f.OpenConnectionAsync(ct); await c.ExecuteAsync(new CommandDefinition(sql,new{UserId=userId,RoleId=roleId},cancellationToken:ct)); }}

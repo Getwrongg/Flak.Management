@@ -1,17 +1,1 @@
-using Dapper;
-using Flak.Infrastructure.Database;
-
-namespace Flak.Infrastructure.Repositories;
-
-public sealed class PlatformServiceRepository
-{
-    private readonly DbConnectionFactory _connectionFactory;
-    public PlatformServiceRepository(DbConnectionFactory connectionFactory) => _connectionFactory = connectionFactory;
-
-    public async Task<int> CountAsync(CancellationToken cancellationToken)
-    {
-        const string sql = "select count(*) from platform_services;";
-        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
-        return await connection.QuerySingleAsync<int>(new CommandDefinition(sql, cancellationToken: cancellationToken));
-    }
-}
+using Dapper;using Flak.Infrastructure.Database;using Flak.Infrastructure.Models;namespace Flak.Infrastructure.Repositories; public sealed class PlatformServiceRepository { private readonly DbConnectionFactory _f; public PlatformServiceRepository(DbConnectionFactory f)=>_f=f; public async Task<IEnumerable<PlatformService>> GetAllAsync(CancellationToken ct){const string sql="select id, key, name from platform_services order by key;"; await using var c=await _f.OpenConnectionAsync(ct); return await c.QueryAsync<PlatformService>(new CommandDefinition(sql,cancellationToken:ct));} public async Task<PlatformService?> GetByKeyAsync(string key,CancellationToken ct){const string sql="select id,key,name from platform_services where key=@Key limit 1;"; await using var c=await _f.OpenConnectionAsync(ct); return await c.QuerySingleOrDefaultAsync<PlatformService>(new CommandDefinition(sql,new{Key=key},cancellationToken:ct));} }

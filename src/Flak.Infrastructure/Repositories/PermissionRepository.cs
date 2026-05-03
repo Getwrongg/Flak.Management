@@ -1,17 +1,1 @@
-using Dapper;
-using Flak.Infrastructure.Database;
-
-namespace Flak.Infrastructure.Repositories;
-
-public sealed class PermissionRepository
-{
-    private readonly DbConnectionFactory _connectionFactory;
-    public PermissionRepository(DbConnectionFactory connectionFactory) => _connectionFactory = connectionFactory;
-
-    public async Task<int> CountAsync(CancellationToken cancellationToken)
-    {
-        const string sql = "select count(*) from permissions;";
-        await using var connection = await _connectionFactory.OpenConnectionAsync(cancellationToken);
-        return await connection.QuerySingleAsync<int>(new CommandDefinition(sql, cancellationToken: cancellationToken));
-    }
-}
+using Dapper;using Flak.Infrastructure.Database;using Flak.Infrastructure.Models;namespace Flak.Infrastructure.Repositories; public sealed class PermissionRepository { private readonly DbConnectionFactory _f; public PermissionRepository(DbConnectionFactory f)=>_f=f; public async Task<IEnumerable<Permission>> GetAllAsync(CancellationToken ct){const string sql="select id, name from permissions order by name;"; await using var c=await _f.OpenConnectionAsync(ct); return await c.QueryAsync<Permission>(new CommandDefinition(sql,cancellationToken:ct));} public async Task<Permission?> GetByNameAsync(string name,CancellationToken ct){const string sql="select id,name from permissions where name=@Name limit 1;"; await using var c=await _f.OpenConnectionAsync(ct); return await c.QuerySingleOrDefaultAsync<Permission>(new CommandDefinition(sql,new{Name=name},cancellationToken:ct)); }}
