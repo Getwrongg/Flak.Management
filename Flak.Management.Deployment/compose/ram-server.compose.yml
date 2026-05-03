@@ -1,0 +1,44 @@
+services:
+  valkey:
+    image: valkey/valkey:8
+    command: ["valkey-server", "--requirepass", "${VALKEY_PASSWORD}"]
+    restart: unless-stopped
+    volumes:
+      - valkey_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a ${VALKEY_PASSWORD} ping | grep PONG"]
+    networks: [flak-cache-internal]
+
+  flak-cache-api:
+    build:
+      context: ../..
+      dockerfile: src/Flak.Cache.Api/Dockerfile
+    image: ${FLAK_CACHE_API_IMAGE:-flak/cache-api}:${FLAK_IMAGE_TAG:-local}
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      PlatformMode__Name: ${PLATFORM_MODE:-Production}
+      Valkey__Host: ${VALKEY_HOST:-valkey}
+      Valkey__Port: ${VALKEY_PORT:-6379}
+      Valkey__Password: ${VALKEY_PASSWORD}
+    depends_on: [valkey]
+    ports: ["127.0.0.1:${CACHE_API_HOST_PORT:-5201}:8080"]
+    networks: [flak-cache-internal]
+
+  flak-workers:
+    build:
+      context: ../..
+      dockerfile: src/Flak.Workers/Dockerfile
+    image: ${FLAK_WORKERS_IMAGE:-flak/workers}:${FLAK_IMAGE_TAG:-local}
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      PlatformMode__Name: ${PLATFORM_MODE:-Production}
+    depends_on: [valkey]
+    networks: [flak-cache-internal]
+
+volumes:
+  valkey_data:
+
+networks:
+  flak-cache-internal:
+    name: flak-cache-internal

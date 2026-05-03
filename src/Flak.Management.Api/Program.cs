@@ -1,0 +1,1 @@
+var app = WebApplication.CreateBuilder(args).Build(); app.MapGet("/health/live",()=>Results.Ok(new{status="live"})); app.MapGet("/health/ready",()=>Results.Ok(new{status="ready"})); app.MapGet("/health/dependencies",()=>Results.Ok(new{status="ok"})); app.MapGet("/api/info",()=>Results.Ok(new{app="Flak.Management.Api"})); app.Run();
